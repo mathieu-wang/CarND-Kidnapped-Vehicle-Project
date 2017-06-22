@@ -88,10 +88,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     vector<LandmarkObs> transformed_obs;
     vector<LandmarkObs> landmarks;
 
-    // TODO: filter out landmarks outside of sensor range
     for (auto map_landmark : map_landmarks.landmark_list) {
-      LandmarkObs map_landmark_obs = {map_landmark.id_i, map_landmark.x_f, map_landmark.y_f};
-      landmarks.push_back(map_landmark_obs);
+      if (fabs(map_landmark.x_f - p.x) < sensor_range && fabs(map_landmark.y_f - p.y) < sensor_range) {
+        LandmarkObs map_landmark_obs = {map_landmark.id_i, map_landmark.x_f, map_landmark.y_f};
+        landmarks.push_back(map_landmark_obs);
+      }
     }
 
     for (auto obs : observations) {
@@ -126,7 +127,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       double y_term = (y - mu_y) * (y - mu_y) / (2 * sigma_y * sigma_y);
 
       p.weight *= constant_factor * exp(-(x_term + y_term));
-      cout << p.weight<<endl;
     }
     weights.push_back(p.weight);
   }
